@@ -110,10 +110,18 @@ void ADD(string& ip_add,Node* root){
       root = copy;
     for (size_t i = 0; i < s.size(); i++)
     {
-      /*
-          if the element is a letter (A,B,C....), then add it to the right place at the bottom of the trie.
-      */
+      
     
+    /* 
+    Optimization:
+    First of all, if we are adding a totally different string to the trie, then eventually, this statement won't
+    happen. Because root->right and root->left are null at this stage (adding a new string).
+    However, if we add a similar string, we want to check wether the next node has a different number than the actual 
+    string we are working on.(for exemple it we are adding 1101 to the trie and 1100 already exist) so we want 
+    to check the last bit. if they are different, let's check the action of the string of we want to add and the action
+    that is already in the trie. If everythin matches, then we are changing the last bit to a "*" and we break the for loop
+    cause there is nothing more to add.
+    */
     ////////////****************************optimization*********************************////////////////
             if(i == 31){
             char right_char ;
@@ -141,6 +149,11 @@ void ADD(string& ip_add,Node* root){
           }     
         }
     ////////////***************************optimization ends here********************************************////////////
+
+
+      /*
+          if the element is a letter (A,B,C....), then add it to the right place at the bottom of the trie.
+      */
       int c = s[i];
       if(c >= 65 && c <= 90){
         
