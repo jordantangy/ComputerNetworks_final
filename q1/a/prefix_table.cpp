@@ -79,7 +79,8 @@ void deallocate(Node* root){
       deallocate(root->right);
       deallocate(root->left);
     }
-    free(root);
+    delete(root);
+    root = NULL;
 }
 
 void ADD(string& ip_add,Node* root){
@@ -89,7 +90,7 @@ void ADD(string& ip_add,Node* root){
   if(entry == 1){
     for (size_t i = 0; i < s.size(); i++)
     {
-        Node* n = (Node*)malloc(sizeof(Node));
+        Node* n = new Node();
         n->number = s[i];
         n->left = NULL;
         n->right = NULL;
@@ -116,7 +117,7 @@ void ADD(string& ip_add,Node* root){
       int c = s[i];
       if(c >= 65 && c <= 90){
         
-         Node* n = (Node*)malloc(sizeof(Node));
+         Node* n = new Node();
                 num_of_nodes++;
                 n->number = s[i];
                 n->left = NULL;
@@ -140,7 +141,7 @@ void ADD(string& ip_add,Node* root){
             continue;
           }
           else {
-             Node* n = (Node*)malloc(sizeof(Node));
+             Node* n = new Node();
                 num_of_nodes++;
                 n->number = s[i];
                 n->left = NULL;
@@ -157,7 +158,7 @@ void ADD(string& ip_add,Node* root){
               continue;
             }
             else {
-               Node* n = (Node*)malloc(sizeof(Node));
+               Node* n = new Node();
                num_of_nodes++;
                 n->number = s[i];
                 n->left = NULL;
@@ -205,25 +206,25 @@ void remove(Node* last,Node* root){
      last = last->previous;
     if(last->right != NULL){
       num_of_nodes--;
-      free(last->right);
+      delete(last->right);
     } 
     if(last->left != NULL){
       num_of_nodes--;
-      free(last->left);
+      delete(last->left);
     } 
   while((last->right != NULL && last->left == NULL) || (last->right == NULL && last->left != NULL)){
      if(last->right != NULL){
        num_of_nodes--;
-      free(last->right);
+      delete(last->right);
     } 
     else if(last->left != NULL){
       num_of_nodes--;
-      free(last->left);
+      delete(last->left);
     }  
     last = last->previous;
     if(last == root){
       num_of_nodes--;
-      free(last);   
+      delete(last);   
       break;
     }
     
@@ -278,7 +279,7 @@ int REMOVE(string& ip_add,Node* root){
   
 }
 int main(){
-  Node* root = (Node*)malloc(sizeof(Node));
+  Node* root = new Node();
   Node* theRoot = root;
   theRoot->number = '\0';
   string line;
