@@ -113,6 +113,34 @@ void ADD(string& ip_add,Node* root){
       /*
           if the element is a letter (A,B,C....), then add it to the right place at the bottom of the trie.
       */
+    
+    ////////////****************************optimization*********************************////////////////
+            if(i == 31){
+            char right_char ;
+            char left_char;
+            char action;
+              if(root->right != NULL){
+                right_char = root->right->number;
+                if(root->right->right != NULL && root->right->left == NULL) action = root->right->right->number;
+                if(root->right->right == NULL && root->right->left != NULL) action = root->right->left->number;
+                if( (right_char != s[i+1]) && (action ==s[i+2])){
+                  root->right->number = '*';
+                  break;
+                }
+              }
+              else{
+                if(root->left != NULL){
+                left_char = root->left->number;
+                if(root->left->left != NULL && root->left->right == NULL) action = root->left->left->number;
+                if(root->left->left == NULL && root->left->right != NULL) action = root->left->right->number;
+                if( (left_char != s[i+1]) && (action ==s[i+2])){
+                  root->left->number = '*';
+                  break;
+              }
+            }    
+          }     
+        }
+    ////////////***************************optimization ends here********************************************////////////
       int c = s[i];
       if(c >= 65 && c <= 90){
         
@@ -168,6 +196,8 @@ void ADD(string& ip_add,Node* root){
                 
             }
           }
+          
+          
         }
     }
 }
