@@ -320,7 +320,7 @@ int REMOVE(string& ip_add,Node* root){
 
   
 }
-int main(){
+int main(int argc, char *argv[]){
   Node* root = (Node*)malloc(sizeof(Node));
   Node* theRoot = root;
   theRoot->number = '\0';
@@ -328,7 +328,7 @@ int main(){
   string ip_address;
   int action = 0;
   char c = 0;
-  ifstream myfile ("file.txt");
+  ifstream myfile (argv[1]);
   if (myfile.is_open())
   {
     while (getline (myfile,line))
