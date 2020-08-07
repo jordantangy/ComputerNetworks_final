@@ -15,6 +15,10 @@ node* left;
 node* previous;
 } Node;
 
+typedef struct trie {
+Node* root;
+} Trie;
+
 string toBinary(string& ip_add){
 
 	int num = stoi(ip_add);
@@ -278,9 +282,10 @@ int REMOVE(string& ip_add,Node* root){
 
 }
 int main(){
-  Node* root = new Node();
-  Node* theRoot = root;
+  Node* theRoot = new Node();
+  Trie* trie = new Trie();
   theRoot->number = '\0';
+  trie->root = theRoot;
   string line;
   string ip_address;
   int action = 0;

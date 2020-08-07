@@ -114,7 +114,7 @@ void ADD(string& ip_add,Node* root){
     
     /* 
     Optimization:
-    First of all, if we are adding a totally different string to the trie, then eventually, this statement won't
+    First of all, if we are adding a totally different string to the trie, then eventually, this if statement won't
     happen. Because root->right and root->left are null at this stage (adding a new string).
     However, if we add a similar string, we want to check wether the next node has a different number than the actual 
     string we are working on.(for exemple it we are adding 1101 to the trie and 1100 already exist) so we want 
