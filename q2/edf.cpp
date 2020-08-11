@@ -4,16 +4,12 @@
 #include <queue>
 #include <vector>
 using namespace std;
-#define ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
+
 
 int num_of_dropped_packs = 0;
 int arrived_packets = 0;
 int transmitted_packets=0;
 int transmitted_value = 0;
-
-
-
-
 
 class packet{
   public:
@@ -36,6 +32,17 @@ typedef struct indexAndBoolean{
   bool b;
 } iandB;
 
+bool isEmpty(vector<packet*>& buffer){
+  for (size_t i = 0; i < buffer.size(); i++)
+  {
+      if(buffer[i] != NULL){
+        return false;
+        break;
+      }
+  }
+  return true;
+}
+
 
 
 iandB* thereIsSpace(vector<packet*>& buffer){
@@ -43,9 +50,11 @@ iandB* thereIsSpace(vector<packet*>& buffer){
     int index = 0;
     bool b = false;
     int space_left = 0;
+    packet* temp =  new packet();
     for (size_t i = 0; i < buffer.size(); i++)
     {
-        if(buffer[i] == NULL){
+        temp = buffer.at(i);
+        if(temp == NULL){
           space_left++;
           index = i;
           break;  
@@ -58,35 +67,36 @@ iandB* thereIsSpace(vector<packet*>& buffer){
     else{
       b = false;
     }
-    
     iandB* i = new iandB();
     i->index = index;
     i->b = b;
 
-    return i;
-    
+    return i; 
 }
 
 void transmitter(vector<packet*>& buffer){
 
-      int max_val = 0;
+      int min_slack = 1000000000;
       int temp = 0;
-
+      int index = 0;
+      int totransmit = 0;
       packet* p = new packet();
-      for (vector<packet*>::iterator it = buffer.begin() ; it != buffer.end(); it++)
-      
+      for (size_t i = 0; i < buffer.size(); i++)
       {
-          temp =(*(it))->value ;
-          if(temp > max_val){
-            max_val = temp;
-             p = *it;
-          }
+        if(buffer[i] == NULL){
+          continue;
+        }
+        temp = buffer[i]->slack;
+        if(temp < min_slack){
+          min_slack = temp;
+          totransmit = buffer[i]->value;
+          delete buffer[i];
+          buffer[i] = NULL;
+        }
       }
-              delete p;
-              p = NULL;
-              transmitted_value += max_val;
-              transmitted_packets++;
-
+             
+    transmitted_value += totransmit;
+    transmitted_packets++;
 }
 
 void edf_algo(vector<packet*>& buffer,packet* p){
@@ -97,6 +107,7 @@ void edf_algo(vector<packet*>& buffer,packet* p){
     arrived_packets++;
   }
   else if(result->b == false){
+
       int min_slack=0;
       int temp_slack = 0;
       int toCompare = p->slack;
@@ -110,68 +121,90 @@ void edf_algo(vector<packet*>& buffer,packet* p){
         }
       }
         if(min_slack < toCompare){
-          buffer.erase(buffer.begin()+index);
-          buffer.push_back(p);
+          buffer[index] = p;
+          arrived_packets++;
           num_of_dropped_packs++;
         }
         else{
           num_of_dropped_packs++;
         }   
-  }
+    }
   
 }
 
+int linesNum(string s){
+  int number_of_lines = 0;
+    std::string line;
+    std::ifstream myfile(s);
+
+    while (std::getline(myfile, line))
+        ++number_of_lines;
+   
+    return number_of_lines;
+
+}
 
 int main(int argc, char *argv[]){
 
     int arr_size = atoi(argv[1]);
     vector<packet*> buffer(arr_size);
     ifstream file(argv[2]);
+    int numOfLines = linesNum(argv[2]);
+    int counter = 0;
     string line;
     string reader;
     int amount,slack,value,index = 0; 
     if(file.is_open()){
         while(getline(file,line)){
+          counter++;
           reader.clear();
          for (size_t i = 0; i < line.size(); i++)
          {
            if(line[i]==' '){
              continue;
            }
-
            reader+=line[i];
            if(line[i]==')'){
-           
-              amount = reader[1]-'0'; //3
-              slack = reader[3]-'0'; //4
-              value = reader[5]-'0';//5
+              amount = reader[1]-'0'; 
+              slack = reader[3]-'0'; 
+              value = reader[5]-'0';
               for (size_t i = 0; i < amount; i++)
               {
               packet* p = new packet(slack,value);
               edf_algo(buffer,p);
+               
                 reader.clear();
               }
-           }
-         }
+            }
+          }
          for (size_t i = 0; i < buffer.size(); i++)
               {
-                  
                   buffer[i]->slack -= 1;
               }
          transmitter(buffer);
 
-     }
+         if(counter == numOfLines){
+           while(!(isEmpty(buffer))){
+             for (size_t i = 0; i < buffer.size(); i++)
+              {
+                  if(buffer[i] == NULL){
+                    continue;
+                  }
+                  buffer[i]->slack -= 1;
+              }
+              transmitter(buffer);
+          }
+        }
+      }
     }
     else{
     cout << "Unable to open the file"; 
     }
-  for(packet* i : buffer){
-      cout << i->slack<< ","<<i->value << endl;
-    }
-    cout << "dropped:" << num_of_dropped_packs << endl;
-    cout << "arrived:" << arrived_packets << endl;
-     cout << "val:" << transmitted_value << endl;
-       cout << "transmitted packets:" << transmitted_packets << endl;
+
+    cout << "total dropped packets:" << num_of_dropped_packs << endl;
+    cout << "total arrived packets:" << arrived_packets << endl;
+    cout << "total transmitted value:" << transmitted_value << endl;
+    cout << "total transmitted packets:" << transmitted_packets << endl;
      
     
 }

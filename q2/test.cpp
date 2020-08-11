@@ -16,7 +16,20 @@ vector<int>& func(vector<int>& arr){
 }
 
 int main(){
-vector<int> arr = {1,2,3};
+vector<int*> arr = {0,0};
+
+int i = 3;
+int* ptr = &i;
+
+// for (size_t i = 0; i < arr.size(); i++)
+// {
+//     arr[i] = ptr;
+// }
+
+bool b = arr.empty();
+cout << b << endl;
+
+
 
 
     
