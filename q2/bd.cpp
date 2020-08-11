@@ -69,12 +69,13 @@ iandB* thereIsSpace(vector<packet*>& buffer){
     iandB* i = new iandB();
     i->index = index;
     i->b = b;
+
     return i; 
 }
 
 void processing_packets(vector<packet*>& buffer){
 
-      int min_slack = 1000000000;
+      int max_val = -1000000000;
       int temp = 0;
       int index = 0;
       int totransmit = 0;
@@ -85,8 +86,8 @@ void processing_packets(vector<packet*>& buffer){
           continue;
         }
         temp = buffer[i]->slack;
-        if(temp < min_slack){
-          min_slack = temp;
+        if(temp > max_val){
+          max_val = temp;
           totransmit = buffer[i]->value;
           delete buffer[i];
           buffer[i] = NULL;
@@ -106,19 +107,19 @@ void edf_algo(vector<packet*>& buffer,packet* p){
   }
   else if(result->b == false){
 
-      int min_slack=0;
-      int temp_slack = 0;
-      int toCompare = p->slack;
+      int min_value=0;
+      int temp_value = 0;
+      int toCompare = p->value;
       int index = 0;
       for (size_t i = 0; i < buffer.size(); i++)
       {
-        temp_slack = buffer[i]->slack;
-        if(toCompare > temp_slack){
-          min_slack = temp_slack;
+        temp_value = buffer[i]->value;
+        if(toCompare > temp_value){
+          min_value = temp_value;
           index = i;
         }
       }
-        if(min_slack < toCompare){
+        if(min_value < toCompare){
           buffer[index] = p;
           arrived_packets++;
           num_of_dropped_packs++;
@@ -198,11 +199,11 @@ int main(int argc, char *argv[]){
     else{
     cout << "Unable to open the file"; 
     }
-    cout << "--------------EDF POLICY --------------------" << endl;
+    cout << "-------------BOUNDED DELAY POLICY-------------" << endl;
     cout << "total dropped packets:" << num_of_dropped_packs << endl;
     cout << "total arrived packets:" << arrived_packets << endl;
     cout << "total transmitted value:" << transmitted_value << endl;
     cout << "total transmitted packets:" << transmitted_packets << endl;
-    cout << "----------------------------------------------" << endl;
+     cout << "---------------------------------------------" << endl;
     
 }

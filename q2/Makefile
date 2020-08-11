@@ -1,6 +1,11 @@
 
-all : 
+all : edf bd 
+
+edf : 
 	g++ -o edf edf.cpp
 
+bd : 
+	g++ -o bd bd.cpp
+
 clean :
-		rm -f edf
+		rm -f edf bd
