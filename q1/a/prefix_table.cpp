@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <fstream>
 using namespace std;
-#define depth 34
+
 
 int entry = 0;
 int num_of_nodes = 1;
+int depth = 0;
 
 typedef struct node {
 char number;
@@ -46,6 +47,7 @@ string toBinary(string& ip_add){
 
 
 string string_parser(string& ip_add){
+    
   string delimiter = ".";
   string ans;
   string partition;
@@ -88,11 +90,27 @@ void deallocate(Node* root){
 }
 
 void ADD(string& ip_add,Node* root){
+  string prfx;
+  int flag = 0;
+  for (size_t i = 0; i < ip_add.size(); i++)
+  {
+    if(ip_add[i] == '/'){
+      flag = 1;
+      continue;
+    }
+    if(flag == 1){
+      if(ip_add[i] == ' '){
+        break;
+      }
+      prfx += ip_add[i];
+    }
+  }
+  int prefix = stoi(prfx);
   Node* copy = root;
   entry++;
   string s = string_parser(ip_add);
   if(entry == 1){
-    for (size_t i = 0; i < s.size(); i++)
+    for (size_t i = 0; i < prefix; i++)
     {
         Node* n = new Node();
         n->number = s[i];

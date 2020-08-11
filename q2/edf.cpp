@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <limits>
 #include <vector>
 using namespace std;
 
@@ -60,7 +61,6 @@ iandB* thereIsSpace(vector<packet*>& buffer){
         }
     }
     if(space_left > 0){
-      
         b= true;
     }
     else{
@@ -74,7 +74,7 @@ iandB* thereIsSpace(vector<packet*>& buffer){
 
 void processing_packets(vector<packet*>& buffer){
 
-      int min_slack = 1000000000;
+      int min_slack = numeric_limits<int>::max();;
       int temp = 0;
       int index = 0;
       int totransmit = 0;
@@ -99,7 +99,6 @@ void processing_packets(vector<packet*>& buffer){
           buffer[index] = NULL;
 
         }
-       
       }      
     transmitted_value += totransmit;
     transmitted_packets++;
@@ -200,7 +199,7 @@ int main(int argc, char *argv[]){
                   if(buffer[i]->slack == 0){
                     delete buffer[i];
                     buffer[i] = NULL;
-                    transmitted_packets--;
+                    num_of_dropped_packs++;
                   }
               }
               processing_packets(buffer);

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <limits>
 #include <vector>
 using namespace std;
 
@@ -75,7 +76,7 @@ iandB* thereIsSpace(vector<packet*>& buffer){
 
 void processing_packets(vector<packet*>& buffer){
 
-      int max_val = -1000000000;
+      int max_val = numeric_limits<int>::min();
       int temp = 0;
       int index = 0;
       int totransmit = 0;
@@ -124,12 +125,12 @@ void edf_algo(vector<packet*>& buffer,packet* p){
       for (size_t i = 0; i < buffer.size(); i++)
       {
         temp_value = buffer[i]->value;
-        if(temp_value < toCompare){
+        if(temp_value <= toCompare){
           min_value = temp_value;
           index = i;
         }
       }
-        if(min_value < toCompare){
+        if(min_value <= toCompare){
           buffer[index] = p;
           arrived_packets++;
           num_of_dropped_packs++;
@@ -200,6 +201,11 @@ int main(int argc, char *argv[]){
                     continue;
                   }
                   buffer[i]->slack -= 1;
+                   if(buffer[i]->slack == 0){
+                    delete buffer[i];
+                    buffer[i] = NULL;
+                    num_of_dropped_packs++;
+                   }
               }
               processing_packets(buffer);
           }
