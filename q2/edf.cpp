@@ -88,11 +88,19 @@ void processing_packets(vector<packet*>& buffer){
         if(temp < min_slack){
           min_slack = temp;
           totransmit = buffer[i]->value;
-          delete buffer[i];
-          buffer[i] = NULL;
+          index = i;
         }
       }
-             
+
+      for (size_t i = 0; i < buffer.size(); i++)
+      {
+        if(i == index){
+          delete buffer[index];
+          buffer[index] = NULL;
+
+        }
+       
+      }      
     transmitted_value += totransmit;
     transmitted_packets++;
 }
@@ -189,6 +197,11 @@ int main(int argc, char *argv[]){
                     continue;
                   }
                   buffer[i]->slack -= 1;
+                  if(buffer[i]->slack == 0){
+                    delete buffer[i];
+                    buffer[i] = NULL;
+                    transmitted_packets--;
+                  }
               }
               processing_packets(buffer);
           }

@@ -85,15 +85,25 @@ void processing_packets(vector<packet*>& buffer){
         if(buffer[i] == NULL){
           continue;
         }
-        temp = buffer[i]->slack;
+        temp = buffer[i]->value;
         if(temp > max_val){
           max_val = temp;
+          index = i;
           totransmit = buffer[i]->value;
-          delete buffer[i];
-          buffer[i] = NULL;
         }
       }
-             
+
+      for (size_t i = 0; i < buffer.size(); i++)
+      {
+        if(i == index){
+          delete buffer[index];
+              buffer[index] = NULL;
+
+        }
+       
+      }
+      
+      
     transmitted_value += totransmit;
     transmitted_packets++;
 }
@@ -114,7 +124,7 @@ void edf_algo(vector<packet*>& buffer,packet* p){
       for (size_t i = 0; i < buffer.size(); i++)
       {
         temp_value = buffer[i]->value;
-        if(toCompare > temp_value){
+        if(temp_value < toCompare){
           min_value = temp_value;
           index = i;
         }
