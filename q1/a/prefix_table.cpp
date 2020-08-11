@@ -7,10 +7,12 @@ using namespace std;
 
 int entry = 0;
 int num_of_nodes = 1;
-int depth = 0;
+
+
 
 typedef struct node {
 char number;
+int depth;
 node* right;
 node* left;
 node* previous;
@@ -89,70 +91,63 @@ void deallocate(Node* root){
     root = NULL;
 }
 
-void ADD(string& ip_add,Node* root){
+int ADD(string& ip_add,Node* root){
   string prfx;
+  char letter;
   int flag = 0;
   for (size_t i = 0; i < ip_add.size(); i++)
   {
+    if(ip_add[i] >= 65 && ip_add[i] <= 90){
+      letter = ip_add[i];
+    }
     if(ip_add[i] == '/'){
       flag = 1;
       continue;
     }
     if(flag == 1){
       if(ip_add[i] == ' '){
-        break;
+        continue;
       }
       prfx += ip_add[i];
     }
   }
   int prefix = stoi(prfx);
-  Node* copy = root;
-  entry++;
+
+  /* enlever ce for pour les lettres, a sa place, faire une הכנסה apres que tout les nodes est ete rajoute 
+    (apres avoir fini les 24 premiers chiffres). en gros, faire un for a la fin qui ajoute au derniers node la lettre
+    quon a trouver plus haut "letter"
+  */
+  
   string s = string_parser(ip_add);
-  if(entry == 1){
-    for (size_t i = 0; i < prefix; i++)
-    {
-        Node* n = new Node();
-        n->number = s[i];
-        n->left = NULL;
-        n->right = NULL;
-        if(s[i] == '0'){
-          n->previous = root;
-          root->left = n;
-          num_of_nodes++;
-        }
-        else{
-           n->previous = root;
-          root->right = n;
-          num_of_nodes++;
-        }
-        root = n;
-    }
-  }
-  else{
-      root = copy;
-    for (size_t i = 0; i < s.size(); i++)
+  cout << s << endl;
+  Node* last = new Node();
+    for (size_t i = 0; i < prefix+1; i++)
     {
       /*
           if the element is a letter (A,B,C....), then add it to the right place at the bottom of the trie.
       */
       int c = s[i];
       if(c >= 65 && c <= 90){
-        
+        cout << "hey" << endl;
          Node* n = new Node();
                 num_of_nodes++;
                 n->number = s[i];
                 n->left = NULL;
                 n->right = NULL;
+                last = n; 
                 if(root->left == NULL && root->right == NULL){
                   n->previous = root;
                   root->right = n;
+                  n->depth = n->previous->depth+1;
                   root = root->right;
+                  
                 } 
                 if(root->right != NULL && root->left == NULL){
                   root->left = n;
+                  n->depth = n->previous->depth+1;
                   n->previous = root;
-                } 
+                }
+                
                 if(root->right != NULL && root->left != NULL) throw "impossible to add another node";
                 break;
       }
@@ -169,9 +164,10 @@ void ADD(string& ip_add,Node* root){
                 n->left = NULL;
                 n->right = NULL;
                 n->previous = root;
+                n->depth = n->previous->depth+1;
                 root->right = n;
                 root = root->right;
-               
+                
           }
         }
           else {
@@ -188,12 +184,14 @@ void ADD(string& ip_add,Node* root){
                 n->previous = root;
                 root->left = n;
                 root = root->left;
+                n->depth = n->previous->depth+1;
                 
             }
           }
         }
+        return last->depth;
     }
-}
+
 
 int FIND(string& ip_add,Node* root){
     string s = string_parser(ip_add);
@@ -301,6 +299,7 @@ int REMOVE(string& ip_add,Node* root){
 }
 int main(int argc, char *argv[]){
   Node* theRoot = new Node();
+  theRoot->depth = 0;
   Trie* trie = new Trie();
   theRoot->number = '\0';
   trie->root = theRoot;
@@ -341,10 +340,10 @@ int main(int argc, char *argv[]){
       }
 
       if(action == 3){
-        ADD(ip_address,theRoot);
+        int ans = ADD(ip_address,theRoot);
         cout << "-------------ADD-------------" << endl;
         cout <<  "Added: " << ip_address.c_str() << endl ;   
-        cout << "at the depth " << depth << ", total nodes: " << num_of_nodes << endl;
+        cout << "at the depth " << ans << ", total nodes: " << num_of_nodes << endl;
         cout << "-----------------------------" << endl;
 
 
@@ -356,7 +355,7 @@ int main(int argc, char *argv[]){
          cout << "------------FIND-------------" << endl;
          cout << "Found "<< ip_address << endl; 
          cout << "with action : " << c << endl;
-         cout << "at the depth " << depth << endl;
+         //cout << "at the depth " <<  << endl;
          cout << "-----------------------------" << endl;
        }
        else {
@@ -370,7 +369,7 @@ int main(int argc, char *argv[]){
        if(ans == 1){
          cout << "-------------REMOVE-----------"<< endl;
          cout << "Removed: " << ip_address << endl;
-         cout << "at the depth " << depth << endl;
+         //cout << "at the depth " << depth << endl;
          cout << "total nodes: " << num_of_nodes << endl;
          cout <<"-------------------------------" << endl;
        }

@@ -163,7 +163,7 @@ int main(int argc, char *argv[]){
     int counter = 0;
     string line;
     string reader;
-    int amount,slack,value,index = 0; 
+    int amount,slack,value = 0; 
     if(file.is_open()){
         while(getline(file,line)){
           counter++;
