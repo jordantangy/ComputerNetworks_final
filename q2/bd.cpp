@@ -207,6 +207,9 @@ int main(int argc, char *argv[]){
                     num_of_dropped_packs++;
                    }
               }
+              if(isEmpty(buffer)){
+                break;
+              }
               processing_packets(buffer);
           }
         }

@@ -6,5 +6,7 @@ In order to run the code :
 2- In the command line write : ./a.out "your_file_name.txt"
     Example : ./a.out file.txt
 
+*** Optimization starts at line 183 and I wrote a detailed explantion before it ***
+
 3- To clean the output file write in the command line : make clean 
 
