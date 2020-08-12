@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <limits>
+#include <regex>
 #include <vector>
 using namespace std;
 
@@ -175,9 +176,19 @@ int main(int argc, char *argv[]){
            }
            reader+=line[i];
            if(line[i]==')'){
-              amount = reader[1]-'0'; 
-              slack = reader[3]-'0'; 
-              value = reader[5]-'0';
+            regex words_regex("[^(.,)!?]+");
+            auto words_begin = sregex_iterator(reader.begin(), reader.end(), words_regex);
+            auto words_end = sregex_iterator();
+
+            vector<int> v;
+           for (sregex_iterator i = words_begin; i != words_end; ++i){
+               int a = stoi((*i).str());
+               v.push_back(a);
+           }
+              amount = v[0]; 
+              slack = v[1]; 
+              value = v[2];
+              v.clear();
               for (size_t i = 0; i < amount; i++)
               {
               packet* p = new packet(slack,value);
