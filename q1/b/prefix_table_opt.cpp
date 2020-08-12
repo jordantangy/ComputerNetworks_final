@@ -3,17 +3,27 @@
 #include <algorithm>
 #include <fstream>
 using namespace std;
-#define depth 34
+
 
 int entry = 0;
 int num_of_nodes = 1;
+int g_depth = 0;
+
+
 
 typedef struct node {
 char number;
+int depth;
+char action;
 node* right;
 node* left;
 node* previous;
 } Node;
+
+
+typedef struct trie {
+Node* root;
+} Trie;
 
 string toBinary(string& ip_add){
 
@@ -42,6 +52,7 @@ string toBinary(string& ip_add){
 
 
 string string_parser(string& ip_add){
+    
   string delimiter = ".";
   string ans;
   string partition;
@@ -79,117 +90,54 @@ void deallocate(Node* root){
       deallocate(root->right);
       deallocate(root->left);
     }
-    free(root);
+    delete(root);
+    root = NULL;
 }
 
-void ADD(string& ip_add,Node* root){
-  Node* copy = root;
-  entry++;
-  string s = string_parser(ip_add);
-  if(entry == 1){
-    for (size_t i = 0; i < s.size(); i++)
-    {
-        Node* n = (Node*)malloc(sizeof(Node));
-        n->number = s[i];
-        n->left = NULL;
-        n->right = NULL;
-        if(s[i] == '0'){
-          n->previous = root;
-          root->left = n;
-          num_of_nodes++;
-        }
-        else{
-           n->previous = root;
-          root->right = n;
-          num_of_nodes++;
-        }
-        root = n;
+int ADD(string& ip_add,Node* root){
+  string prfx;
+  char letter;
+  int flag = 0;
+  for (size_t i = 0; i < ip_add.size(); i++)
+  {
+    if(ip_add[i] >= 65 && ip_add[i] <= 90){
+      letter = ip_add[i];
+    }
+    if(ip_add[i] == '/'){
+      flag = 1;
+      continue;
+    }
+    if(flag == 1){
+      if(ip_add[i] == ' '){
+        continue;
+      }
+      prfx += ip_add[i];
     }
   }
-  else{
-      root = copy;
-    for (size_t i = 0; i < s.size(); i++)
+  int prefix = stoi(prfx);
+  
+  string s = string_parser(ip_add);
+
+    for (size_t i = 0; i < prefix; i++)
     {
-      
-    
-    /* 
-    Optimization:
-    First of all, if we are adding a totally different string to the trie, then eventually, this if statement won't
-    happen. Because root->right and root->left are null at this stage (adding a new string).
-    However, if we add a similar string, we want to check wether the next node has a different number than the actual 
-    string we are working on.(for exemple it we are adding 1101 to the trie and 1100 already exist) so we want 
-    to check the last bit. if they are different, let's check the action of the string of we want to add and the action
-    that is already in the trie. If everythin matches, then we are changing the last bit to a "*" and we break the for loop
-    cause there is nothing more to add.
-    */
-    ////////////****************************optimization*********************************////////////////
-            if(i == 31){
-            char right_char ;
-            char left_char;
-            char action;
-              if(root->right != NULL){
-                right_char = root->right->number;
-                if(root->right->right != NULL && root->right->left == NULL) action = root->right->right->number;
-                if(root->right->right == NULL && root->right->left != NULL) action = root->right->left->number;
-                if( (right_char != s[i+1]) && (action ==s[i+2])){
-                  root->right->number = '*';
-                  break;
-                }
-              }
-              else{
-                if(root->left != NULL){
-                left_char = root->left->number;
-                if(root->left->left != NULL && root->left->right == NULL) action = root->left->left->number;
-                if(root->left->left == NULL && root->left->right != NULL) action = root->left->right->number;
-                if( (left_char != s[i+1]) && (action ==s[i+2])){
-                  root->left->number = '*';
-                  break;
-              }
-            }    
-          }     
-        }
-    ////////////***************************optimization ends here********************************************////////////
-
-
-      /*
-          if the element is a letter (A,B,C....), then add it to the right place at the bottom of the trie.
-      */
-      int c = s[i];
-      if(c >= 65 && c <= 90){
-        
-         Node* n = (Node*)malloc(sizeof(Node));
-                num_of_nodes++;
-                n->number = s[i];
-                n->left = NULL;
-                n->right = NULL;
-                if(root->left == NULL && root->right == NULL){
-                  n->previous = root;
-                  root->right = n;
-                  root = root->right;
-                } 
-                if(root->right != NULL && root->left == NULL){
-                  root->left = n;
-                  n->previous = root;
-                } 
-                if(root->right != NULL && root->left != NULL) throw "impossible to add another node";
-                break;
-      }
-      ////////////////////////////////
+ 
         if(s[i] == '1'){
           if(root->right != NULL){
             root = root->right;
             continue;
           }
           else {
-             Node* n = (Node*)malloc(sizeof(Node));
+             Node* n = new Node();
                 num_of_nodes++;
                 n->number = s[i];
                 n->left = NULL;
                 n->right = NULL;
                 n->previous = root;
+                n->depth = n->previous->depth+1;
                 root->right = n;
                 root = root->right;
                
+                
           }
         }
           else {
@@ -198,49 +146,87 @@ void ADD(string& ip_add,Node* root){
               continue;
             }
             else {
-               Node* n = (Node*)malloc(sizeof(Node));
+               Node* n = new Node();
                num_of_nodes++;
                 n->number = s[i];
                 n->left = NULL;
                 n->right = NULL;
                 n->previous = root;
+                n->depth = n->previous->depth+1;
                 root->left = n;
                 root = root->left;
+               
                 
             }
           }
-          
-          
         }
-    }
-}
+        root->action = letter;
+  //*************************OPTIMIZATION GOES HERE*******////////////////////
+  /*
+  Explanation : First , my implementation of the last node goes as follows : the last node retains the the last bit 
+  of the ip address and retains the action.
+  So for the optimization , I check wether or not the last node has other nodes on its right and its left.
+  If it has sons on its right *and* on its left then lets check if the numbers are different (0 on the left and 1 on the right for example),
+  if yes then check if they both hold the same action, if yes, delete those two nodes and add to the last bit  a star and
+  add the action that we found.
+  Here is a representation : 
 
-int FIND(string& ip_add,Node* root){
+  the bit before the last bit:  1  ----------------------------> becomes the last bit: 1*                                
+                               /  \                                    pulled up action:A
+                              /    \                                             /    \
+                             /      \         ---------------------------->     /      \
+                            /        \                                         /        \
+                        bit :0      bit:1                                    NULL       NULL
+                      action:A      action A
+
+  */
+        root = root->previous;
+              char toSave;
+              if(root->right != NULL && root->left != NULL){
+                if((root->right->number != root->left->number) && (root->right->action == root->left->action)){
+                  toSave = root->right->action;
+                  delete root->right;
+                  delete root->left;
+                  root->number += '*';
+                  root->action = toSave;
+                }
+              } 
+  //***********************OPTIMIZATION ENDS HERE************////////////////     
+        return root->depth;
+    }
+
+
+char FIND(string& ip_add,Node* root){
     string s = string_parser(ip_add);
-    string buffer;
     char c ;
     for (size_t i = 0; i < s.size(); i++)
     {
-      
         if(s[i] == '1'){
           if(root->right != NULL){
-            buffer +=s[i];
+            if(root->right->action >= 65 && root->right->action <= 90){
+              c = root->right->action;
+              g_depth = root->right->depth;
+              return c;
+            }
           root = root->right;
           }
+          else{return 0;}
         }
           else {
             if(root->left != NULL){
-              buffer +=s[i];
+              if(root->left->action >= 65 && root->left->action <= 90){
+              c = root->left->action;
+              g_depth = root->left->depth;
+              return c;
+            }
               root = root->left;
             }
+            else{return 0;}
           }
     }
  
-  if ( s.substr(0,23) == buffer.substr(0,23)){
-    
-      return 1  ;
-    }
 return 0;
+
 }
 
 void remove(Node* last,Node* root){
@@ -248,25 +234,25 @@ void remove(Node* last,Node* root){
      last = last->previous;
     if(last->right != NULL){
       num_of_nodes--;
-      free(last->right);
+      delete(last->right);
     } 
     if(last->left != NULL){
       num_of_nodes--;
-      free(last->left);
+      delete(last->left);
     } 
   while((last->right != NULL && last->left == NULL) || (last->right == NULL && last->left != NULL)){
      if(last->right != NULL){
        num_of_nodes--;
-      free(last->right);
+      delete(last->right);
     } 
     else if(last->left != NULL){
       num_of_nodes--;
-      free(last->left);
+      delete(last->left);
     }  
     last = last->previous;
     if(last == root){
       num_of_nodes--;
-      free(last);   
+      delete(last);  
       break;
     }
     
@@ -274,13 +260,13 @@ void remove(Node* last,Node* root){
 }
 
 int REMOVE(string& ip_add,Node* root){
-      
-   string bin_add = string_parser(ip_add);
-  Node* copy = root;
+  char ans = ip_add[ip_add.size()-1];
+  string bin_add = string_parser(ip_add);
+   Node* copy = root;
    Node* last = NULL;
    char c = bin_add[32];
    // if the ip was found in the tree than search for the last node of this ip address
-   if(FIND(ip_add,root) == 1 ){
+   if(FIND(ip_add,root) == ans ){
     for (size_t i = 0; i < bin_add.size(); i++)
     {
         char c = bin_add[i];
@@ -318,12 +304,13 @@ int REMOVE(string& ip_add,Node* root){
   }
   return 0;
 
-  
 }
 int main(int argc, char *argv[]){
-  Node* root = (Node*)malloc(sizeof(Node));
-  Node* theRoot = root;
+  Node* theRoot = new Node();
+  theRoot->depth = 0;
+  Trie* trie = new Trie();
   theRoot->number = '\0';
+  trie->root = theRoot;
   string line;
   string ip_address;
   int action = 0;
@@ -347,36 +334,33 @@ int main(int argc, char *argv[]){
         for (int j = i+1; j < line.size(); j++)
         { 
             letter = line[j];
-             if(line[j] == ' '){
-              end = j;
-            }
             if(letter >= 65 && letter <= 90){
               c = letter;
             }
         }
-        ip_address = line.substr(start_add);
+        ip_address = line.substr(start_add);        
       }
       else{
         ip_address = line.substr(action+1);
       }
 
       if(action == 3){
-        ADD(ip_address,theRoot);
+        int ans = ADD(ip_address,theRoot);
         cout << "-------------ADD-------------" << endl;
         cout <<  "Added: " << ip_address.c_str() << endl ;   
-        cout << "at the depth " << depth << ", total nodes: " << num_of_nodes << endl;
+        cout << "at the depth " << ans << ", total nodes: " << num_of_nodes << endl;
         cout << "-----------------------------" << endl;
 
 
       }
       else if(action == 4){
        
-       int s = FIND(ip_address,theRoot);
-       if (s == 1){
+       char c = FIND(ip_address,theRoot);
+       if (c != 0){
          cout << "------------FIND-------------" << endl;
          cout << "Found "<< ip_address << endl; 
          cout << "with action : " << c << endl;
-         cout << "at the depth " << depth << endl;
+         cout << "at the depth " << g_depth << endl;
          cout << "-----------------------------" << endl;
        }
        else {
@@ -390,7 +374,7 @@ int main(int argc, char *argv[]){
        if(ans == 1){
          cout << "-------------REMOVE-----------"<< endl;
          cout << "Removed: " << ip_address << endl;
-         cout << "at the depth " << depth << endl;
+         //cout << "at the depth " << depth << endl;
          cout << "total nodes: " << num_of_nodes << endl;
          cout <<"-------------------------------" << endl;
        }

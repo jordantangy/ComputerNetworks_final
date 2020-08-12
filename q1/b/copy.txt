@@ -1,0 +1,11 @@
+    root = root->previous;
+              char toSave;
+              if(root->right != NULL && root->left != NULL){
+                if((root->right->number != root->left->number) && (root->right->action == root->left->action)){
+                  toSave = root->right->action;
+                  delete root->right;
+                  delete root->left;
+                  root->number = '*';
+                  root->action = toSave;
+                }
+              }

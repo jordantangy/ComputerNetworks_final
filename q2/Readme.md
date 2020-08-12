@@ -10,7 +10,7 @@ else write in the terminal : make bd
 2-Then in the terminal write : ./edf "buffer_size" sample_input.txt  if you chose edf.
 else write : ./bd "buffer_size" sample_input.txt
     Example 1: ./edf 4 sample_input.txt 
-    Example 1: ./bd 4 sample_input.txt 
+    Example 2: ./bd 4 sample_input.txt 
 
 *** IMPORTANT : My code reads the file and takes in account that there is a space between the packets ***
 

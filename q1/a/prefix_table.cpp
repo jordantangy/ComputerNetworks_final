@@ -7,16 +7,19 @@ using namespace std;
 
 int entry = 0;
 int num_of_nodes = 1;
+int g_depth = 0;
 
 
 
 typedef struct node {
 char number;
 int depth;
+char action;
 node* right;
 node* left;
 node* previous;
 } Node;
+
 
 typedef struct trie {
 Node* root;
@@ -112,46 +115,12 @@ int ADD(string& ip_add,Node* root){
     }
   }
   int prefix = stoi(prfx);
-
-  /* enlever ce for pour les lettres, a sa place, faire une הכנסה apres que tout les nodes est ete rajoute 
-    (apres avoir fini les 24 premiers chiffres). en gros, faire un for a la fin qui ajoute au derniers node la lettre
-    quon a trouver plus haut "letter"
-  */
   
   string s = string_parser(ip_add);
-  cout << s << endl;
-  Node* last = new Node();
-    for (size_t i = 0; i < prefix+1; i++)
+
+    for (size_t i = 0; i < prefix; i++)
     {
-      /*
-          if the element is a letter (A,B,C....), then add it to the right place at the bottom of the trie.
-      */
-      int c = s[i];
-      if(c >= 65 && c <= 90){
-        cout << "hey" << endl;
-         Node* n = new Node();
-                num_of_nodes++;
-                n->number = s[i];
-                n->left = NULL;
-                n->right = NULL;
-                last = n; 
-                if(root->left == NULL && root->right == NULL){
-                  n->previous = root;
-                  root->right = n;
-                  n->depth = n->previous->depth+1;
-                  root = root->right;
-                  
-                } 
-                if(root->right != NULL && root->left == NULL){
-                  root->left = n;
-                  n->depth = n->previous->depth+1;
-                  n->previous = root;
-                }
-                
-                if(root->right != NULL && root->left != NULL) throw "impossible to add another node";
-                break;
-      }
-      ////////////////////////////////
+ 
         if(s[i] == '1'){
           if(root->right != NULL){
             root = root->right;
@@ -167,6 +136,7 @@ int ADD(string& ip_add,Node* root){
                 n->depth = n->previous->depth+1;
                 root->right = n;
                 root = root->right;
+               
                 
           }
         }
@@ -182,43 +152,50 @@ int ADD(string& ip_add,Node* root){
                 n->left = NULL;
                 n->right = NULL;
                 n->previous = root;
+                n->depth = n->previous->depth+1;
                 root->left = n;
                 root = root->left;
-                n->depth = n->previous->depth+1;
+               
                 
             }
           }
         }
-        return last->depth;
+        root->action = letter;      
+        return root->depth;
     }
 
 
-int FIND(string& ip_add,Node* root){
+char FIND(string& ip_add,Node* root){
     string s = string_parser(ip_add);
-    string buffer;
     char c ;
     for (size_t i = 0; i < s.size(); i++)
     {
-      
         if(s[i] == '1'){
           if(root->right != NULL){
-            buffer +=s[i];
+            if(root->right->action >= 65 && root->right->action <= 90){
+              c = root->right->action;
+              g_depth = root->right->depth;
+              return c;
+            }
           root = root->right;
           }
+          else{return 0;}
         }
           else {
             if(root->left != NULL){
-              buffer +=s[i];
+              if(root->left->action >= 65 && root->left->action <= 90){
+              c = root->left->action;
+              g_depth = root->left->depth;
+              return c;
+            }
               root = root->left;
             }
+            else{return 0;}
           }
     }
  
-  if ( s.substr(0,23) == buffer.substr(0,23)){
-    
-      return 1  ;
-    }
 return 0;
+
 }
 
 void remove(Node* last,Node* root){
@@ -244,7 +221,7 @@ void remove(Node* last,Node* root){
     last = last->previous;
     if(last == root){
       num_of_nodes--;
-      delete(last);   
+      delete(last);  
       break;
     }
     
@@ -252,13 +229,13 @@ void remove(Node* last,Node* root){
 }
 
 int REMOVE(string& ip_add,Node* root){
-      
-   string bin_add = string_parser(ip_add);
-  Node* copy = root;
+  char ans = ip_add[ip_add.size()-1];
+  string bin_add = string_parser(ip_add);
+   Node* copy = root;
    Node* last = NULL;
    char c = bin_add[32];
    // if the ip was found in the tree than search for the last node of this ip address
-   if(FIND(ip_add,root) == 1 ){
+   if(FIND(ip_add,root) == ans ){
     for (size_t i = 0; i < bin_add.size(); i++)
     {
         char c = bin_add[i];
@@ -326,14 +303,11 @@ int main(int argc, char *argv[]){
         for (int j = i+1; j < line.size(); j++)
         { 
             letter = line[j];
-             if(line[j] == ' '){
-              end = j;
-            }
             if(letter >= 65 && letter <= 90){
               c = letter;
             }
         }
-        ip_address = line.substr(start_add);
+        ip_address = line.substr(start_add);        
       }
       else{
         ip_address = line.substr(action+1);
@@ -350,12 +324,12 @@ int main(int argc, char *argv[]){
       }
       else if(action == 4){
        
-       int s = FIND(ip_address,theRoot);
-       if (s == 1){
+       char c = FIND(ip_address,theRoot);
+       if (c != 0){
          cout << "------------FIND-------------" << endl;
          cout << "Found "<< ip_address << endl; 
          cout << "with action : " << c << endl;
-         //cout << "at the depth " <<  << endl;
+         cout << "at the depth " << g_depth << endl;
          cout << "-----------------------------" << endl;
        }
        else {
