@@ -13,6 +13,7 @@ else write : ./bd "buffer_size" sample_input.txt
     Example 2: ./bd 4 sample_input.txt 
 
 *** IMPORTANT : My code reads the file and takes in account that there is a space between the packets ***
+*** IMPORTANT : If you already ran the code and want to re-run again ***on a different input file*** , you need to go in terminal and enter : make clean ,  and only then you can recompile and run the code ***
 
 *** if you want to remove the compiled files from your system enter the following command in the terminal: make clean ***
 
