@@ -4,7 +4,7 @@ In order to run the code :
   then press enter (the file should compile).
 
 2- In the command line write : ./a.out "your_file_name.txt"
-    Example : ./a.out file.txt
+    Example : ./a.out sample_input.txt
 
 *** Optimization starts at line 183 and I wrote a detailed explantion before it ***
 

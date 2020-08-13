@@ -4,7 +4,7 @@ In order to run the code :
   then press enter (the file should compile).
 
 2- In the command line write : ./a.out "your_file_name.txt"
-    Example : ./a.out file.txt
+    Example : ./a.out sample_input.txt
 
 3- To clean the output file write in the command line : make clean 
 
