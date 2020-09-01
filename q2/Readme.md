@@ -1,8 +1,8 @@
 *** If you want to compile and run both policies at the same time : ***
 
 1-Go in the terminal and write : make all
-2-Then in the terminal write : ./eof "buffer_size" sample_input.txt && ./bd "buffer_size" sample_input.txt
-    Example  : ./eof 4 sample_input.txt && ./bd 4 sample_input.txt
+2-Then in the terminal write : ./edf "buffer_size" sample_input.txt && ./bd "buffer_size" sample_input.txt
+    Example  : ./edf 4 sample_input.txt && ./bd 4 sample_input.txt
 
 *** If you want to compile and run one policy at a time : ***
 1-If you want to compile and run edf then write in the terminal: make edf
